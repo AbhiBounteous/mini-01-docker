@@ -41,10 +41,9 @@ jobs:
         run: |
           docker build -t mini-01:${{ github.sha }} .
           echo "Image built: mini-01:${{ github.sha }}"
-
-      - name: Security scan
-        run: |
-          docker run --rm \
-          aquasec/trivy image \
+      - name: Security Scan
+  	run: |
+   	 docker run --rm \
+      	  aquasec/trivy image \
           --severity HIGH,CRITICAL \
-          mini-01:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/mini-01:v1
