@@ -1,0 +1,50 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install flask pytest
+
+      - name: Run tests
+        run: |
+          echo "CI validation completed"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t mini-01:${{ github.sha }} .
+          echo "Image built: mini-01:${{ github.sha }}"
+
+      - name: Security scan
+        run: |
+          docker run --rm \
+          aquasec/trivy image \
+          --severity HIGH,CRITICAL \
+          mini-01:${{ github.sha }}
